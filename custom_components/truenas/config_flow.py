@@ -46,7 +46,7 @@ class TrueNASFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     """Handle a config flow for TrueNAS."""
 
     VERSION = 1
-    CONNECTION_CLASS = config_entries.CONN_CLASS_CLOUD_POLL
+    CONNECTION_CLASS = config_entries.CONN_CLASS_LOCAL_POLL
 
     def __init__(self):
         """Initialize the synology_dsm config flow."""
@@ -81,7 +81,7 @@ class TrueNASFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
 class TrueNASOptionsFlowHandler(config_entries.OptionsFlow):
     """Handle an option flow."""
 
-    def __init__(self, config_entry: config_entries.ConfigEntry):
+    def __init__(self, config_entry):
         """Initialize options flow."""
         self.config_entry = config_entry
 
@@ -90,11 +90,7 @@ class TrueNASOptionsFlowHandler(config_entries.OptionsFlow):
         if user_input is not None:
             return self.async_create_entry(title="", data=user_input)
 
-        data_schema = vol.Schema
-
-        return self.async_show_form(step_id="init", data_schema=data_schema)
-
-
+        return self.async_show_form(step_id="init", data_schema=STEP_USER_DATA_SCHEMA)
 class CannotConnect(exceptions.HomeAssistantError):
     """Error to indicate we cannot connect."""
 
