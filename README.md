@@ -1,0 +1,1 @@
+This is a custom component for Home Assistant that allows you to monitor your TrueNAS Core instance.
