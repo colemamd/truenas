@@ -1,0 +1,16 @@
+{
+  "domain": "truenas",
+  "name": "TrueNAS",
+  "config_flow": true,
+  "documentation": "https://www.github.com/colemamd/truenas",
+  "requirements": [
+    "aiotruenas-client==0.2.2"
+  ],
+  "ssdp": [],
+  "zeroconf": [],
+  "homekit": {},
+  "dependencies": [],
+  "codeowners": [
+    "@colemamd"
+  ]
+}
