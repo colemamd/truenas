@@ -23,8 +23,6 @@ async def async_setup_entry(hass: HomeAssistantType, entry: ConfigEntry):
     """Set up TrueNAS from a config entry."""
 
     api = TrueNASMachine(hass, entry)
-    try:
-      await: api.async_setup()
 
     for component in PLATFORMS:
         hass.async_create_task(
