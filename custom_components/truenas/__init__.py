@@ -14,18 +14,6 @@ from aiotruenas_client import CachingMachine as TrueNASMachine
 
 PLATFORMS = ["sensor"]
 
-def __init__(self, hass: HomeAssistantType, entry: ConfigEntry):
-  """Initialize the wrapper class."""
-  self._hass = hass
-  self._entry = entry
-
-  api = TrueNASMachine(hass, entry)
-
-  #TrueNAS API
-  self.disks = api.get_disks()
-  self.pools = api.get_pools()
-  self.vms = api.get_vms()
-
 async def async_setup(hass, config):
     """Set up the TrueNAS component."""
     return True
@@ -61,3 +49,18 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry):
         hass.data[DOMAIN].pop(entry.entry_id)
 
     return unload_ok
+
+class TruenasApi:
+  """Class to interface with TrueNAS websocket API."""
+
+def __init__(self, hass: HomeAssistantType, entry: ConfigEntry):
+  """Initialize the wrapper class."""
+  self._hass = hass
+  self._entry = entry
+
+  api = TrueNASMachine(hass, entry)
+
+  #TrueNAS API
+  self.disks = api.get_disks()
+  self.pools = api.get_pools()
+  self.vms = api.get_vms()
