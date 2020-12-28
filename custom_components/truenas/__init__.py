@@ -14,6 +14,18 @@ from aiotruenas_client import CachingMachine as TrueNASMachine
 
 PLATFORMS = ["sensor"]
 
+def __init__(self, hass: HomeAssistantType, entry: ConfigEntry):
+  """Initialize the wrapper class."""
+  self._hass = hass
+  self._entry = entry
+
+  api = TrueNASMachine(hass, entry)
+
+  #TrueNAS API
+  self.disks = api.get_disks()
+  self.pools = api.get_pools()
+  self.vms = api.get_vms()
+
 async def async_setup(hass, config):
     """Set up the TrueNAS component."""
     return True
@@ -21,8 +33,6 @@ async def async_setup(hass, config):
 
 async def async_setup_entry(hass: HomeAssistantType, entry: ConfigEntry):
     """Set up TrueNAS from a config entry."""
-
-    api = TrueNASMachine(hass, entry)
 
     for component in PLATFORMS:
         hass.async_create_task(
