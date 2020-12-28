@@ -4,13 +4,12 @@ import logging
 import voluptuous as vol
 
 from homeassistant import config_entries, core, exceptions
-from homeassistant.core import callback
 
 from .const import DOMAIN  # pylint:disable=unused-import
 
 _LOGGER = logging.getLogger(__name__)
 
-STEP_USER_DATA_SCHEMA = vol.Schema({"host": str, "username": str, "password": str})
+data_schema = vol.Schema({"host": str, "username": str, "password": str})
 
 
 class TrueNASConfigHub:
@@ -33,11 +32,23 @@ async def validate_input(hass: core.HomeAssistant, data):
 
     Data has the keys from STEP_USER_DATA_SCHEMA with values provided by the user.
     """
- 
+    # TODO validate the data can be used to set up a connection.
+
+    # If your PyPI package is not built with async, pass your methods
+    # to the executor:
+    # await hass.async_add_executor_job(
+    #     your_validate_func, data["username"], data["password"]
+    # )
+
     hub = TrueNASConfigHub(data["host"])
 
     if not await hub.authenticate(data["username"], data["password"]):
         raise InvalidAuth
+
+    # If you cannot connect:
+    # throw CannotConnect
+    # If the authentication is wrong:
+    # InvalidAuth
 
     # Return info that you want to store in the config entry.
     return {"title": "TrueNAS"}
@@ -52,32 +63,30 @@ class TrueNASFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     @staticmethod
     @callback
     def async_get_options_flow(config_entry):
-      """Get the options flow for this handler."""
-      return TrueNASOptionsFlowHandler(config_entry)
+        """Get the options flow for this handler."""
+        return TrueNASOptionsFlowHandler(config_entry)
 
     def __init__(self):
-        """Initialize the TrueNAS config flow."""
+        """Initialize the synology_dsm config flow."""
         self.saved_user_input = {}
 
     async def _show_setup_form(self, user_input=None, errors=None):
-      """Show setup form to the user"""
-      if not user_input:
-        user_input = {}
+        """Show setup form to the user"""
+        if not user_input:
+            user_input = {}
 
-      step_id = "user"
+        step_id = "user"
 
-      return self.async_show_form(
-        step_id=step_id,
-        data_schema=data_schema,
-        errors=errors or {},
-      )
+        return self.async_show_form(
+            step_id=step_id,
+            data_schema=data_schema,
+            errors=errors or {},
+        )
 
     async def async_step_user(self, user_input=None):
         """Handle the initial step."""
         if user_input is None:
-            return self.async_show_form(
-                step_id="user", data_schema=STEP_USER_DATA_SCHEMA
-            )
+            return self.async_show_form(step_id="host", data_schema=data_schema)
 
         errors = {}
 
@@ -94,14 +103,14 @@ class TrueNASFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             return self.async_create_entry(title=info["title"], data=user_input)
 
         return self.async_show_form(
-            step_id="user", data_schema=STEP_USER_DATA_SCHEMA, errors=errors
+            step_id="user", data_schema=data_schema, errors=errors
         )
 
 
 class TrueNASOptionsFlowHandler(config_entries.OptionsFlow):
     """Handle an option flow."""
 
-    def __init__(self, config_entry):
+    def __init__(self, config_entry: config_entries.ConfigEntry):
         """Initialize options flow."""
         self.config_entry = config_entry
 
@@ -110,7 +119,11 @@ class TrueNASOptionsFlowHandler(config_entries.OptionsFlow):
         if user_input is not None:
             return self.async_create_entry(title="", data=user_input)
 
-        return self.async_show_form(step_id="user", data_schema=STEP_USER_DATA_SCHEMA)
+        data_schema = vol.Schema
+
+        return self.async_show_form(step_id="user", data_schema=data_schema)
+
+
 class CannotConnect(exceptions.HomeAssistantError):
     """Error to indicate we cannot connect."""
 

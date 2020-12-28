@@ -15,7 +15,7 @@ from homeassistant.helpers.temperature import display_temp
 from homeassistant.helpers.typing import HomeAssistantType
 from homeassistant.util.dt import utcnow
 
-from . import TrueNASMachine
+from . import TrueNASMachine, TruenasApi
 
 from .const import (
     DOMAIN,
@@ -28,11 +28,38 @@ async def async_setup_entry(
 ) -> None:
     """Set up the TrueNAS Sensor."""
 
-    api = hass.data[DOMAIN][entry.unique_id][TrueNASMachine]
-
     entities = [
         api(sensor_type, UTILISATION_SENSORS[sensor_type])
         for sensor_type in UTILISATION_SENSORS
     ]
 
     async_add_entities(entities)
+
+class TrueNASDiskSensor(Entity):
+  """Base class for a TrueNAS Disk sensor."""
+
+  def __init__(self, api):
+    """Initialize the sensor."""
+    self._api = TruenasApi.get_disks()
+
+class TrueNASPoolSensor(TrueNASSensor):
+  """Base class for a TrueNAS Pool sensor."""
+
+  def __init__(self, api):
+    """Initialize the sensor."""
+    self._api = TruenasApi.get_pools()
+
+  @property
+  def state(self):
+    """Return the state of the sensor."""
+
+class TrueNASVMSensor(TrueNASSensor):
+  """Base class for a TrueNAS VM sensor."""
+
+  def __init__(self, api):
+    """Initiliaze the sensor."""
+    self._api = TruenasApi.get_vms()
+
+  @property
+  def state(self):
+    """Return the state of the sensor."""

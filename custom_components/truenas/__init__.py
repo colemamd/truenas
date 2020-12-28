@@ -1,6 +1,5 @@
 """The TrueNAS integration."""
 import asyncio
-from custom_components.truenas.config_flow import STEP_USER_DATA_SCHEMA
 
 import voluptuous as vol
 
@@ -8,11 +7,11 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.typing import HomeAssistantType
 
-from .const import DOMAIN
 
 from aiotruenas_client import CachingMachine as TrueNASMachine
 
 PLATFORMS = ["sensor"]
+
 
 async def async_setup(hass, config):
     """Set up the TrueNAS component."""
@@ -50,17 +49,19 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry):
 
     return unload_ok
 
+
 class TruenasApi:
-  """Class to interface with TrueNAS websocket API."""
+    """Class to interface with TrueNAS websocket API."""
+
 
 def __init__(self, hass: HomeAssistantType, entry: ConfigEntry):
-  """Initialize the wrapper class."""
-  self._hass = hass
-  self._entry = entry
+    """Initialize the wrapper class."""
+    self._hass = hass
+    self._entry = entry
 
-  api = TrueNASMachine(hass, entry)
+    api = TrueNASMachine(hass, entry)
 
-  #TrueNAS API
-  self.disks = api.get_disks()
-  self.pools = api.get_pools()
-  self.vms = api.get_vms()
+    # TrueNAS API
+    self.disks = api.get_disks()
+    self.pools = api.get_pools()
+    self.vms = api.get_vms()
