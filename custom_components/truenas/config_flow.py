@@ -4,6 +4,7 @@ import logging
 import voluptuous as vol
 
 from homeassistant import config_entries, core, exceptions
+from homeassistant.core import callback
 
 from .const import DOMAIN  # pylint:disable=unused-import
 
@@ -48,9 +49,28 @@ class TrueNASFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     VERSION = 1
     CONNECTION_CLASS = config_entries.CONN_CLASS_LOCAL_POLL
 
+    @staticmethod
+    @callback
+    def async_get_options_flow(config_entry):
+      """Get the options flow for this handler."""
+      return TrueNASOptionsFlowHandler(config_entry)
+
     def __init__(self):
-        """Initialize the synology_dsm config flow."""
+        """Initialize the TrueNAS config flow."""
         self.saved_user_input = {}
+
+    async def _show_setup_form(self, user_input=None, errors=None):
+      """Show setup form to the user"""
+      if not user_input:
+        user_input = {}
+
+      step_id = "user"
+
+      return self.async_show_form(
+        step_id=step_id,
+        data_schema=data_schema,
+        errors=errors or {},
+      )
 
     async def async_step_user(self, user_input=None):
         """Handle the initial step."""
